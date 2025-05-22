@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация на нетворкинг мероприятие</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a6741 0%, #a4b3a8 50%, #7d8c8d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #4a6741, #6b8054, #7d8c8d);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '🏔️✨🌿';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            opacity: 0.7;
+        }
+        
+        .header h1 {
+            font-size: 2.4em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .form-container {
+            padding: 40px 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6b8054;
+            box-shadow: 0 0 0 3px rgba(107, 128, 84, 0.15);
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #4a6741, #6b8054);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(74, 103, 65, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        .price-info {
+            background: linear-gradient(135deg, rgba(107, 128, 84, 0.1), rgba(125, 140, 141, 0.1));
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid #6b8054;
+            border: 1px solid rgba(107, 128, 84, 0.2);
+        }
+        
+        .price-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .price-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .price-info li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .price-info li:before {
+            content: "✨";
+            color: #6b8054;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Сакральное Единение</h1>
+            <p>Встреча душ на земле силы Алтая</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="price-info">
+                <h3>🌟 Энергетический обмен:</h3>
+                <ul>
+                    <li>Новые души: <strong>1000 рублей</strong></li>
+                    <li>Возвращающиеся: <strong>800 рублей</strong> (благодарность за верность пути)</li>
+                </ul>
+                <p style="margin-top: 15px; font-style: italic; color: #666; font-size: 0.9em;">
+                    Каждый рубль идет на создание пространства для трансформации и роста 🙏
+                </p>
+            </div>
+            
+            <form id="registrationForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">Имя *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Фамилия *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telegram">Telegram (юзернейм) *</label>
+                    <input type="text" id="telegram" name="telegram" required placeholder="@username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Телефон *</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="+7 (900) 123-45-67">
+                </div>
+                
+                <div class="form-group">
+                    <label for="activity">Ваш путь / Призвание *</label>
+                    <input type="text" id="activity" name="activity" required placeholder="Например: художник, целитель, предприниматель, искатель">
+                </div>
+                
+                <div class="form-group">
+                    <label for="networking_request">Чего ищет ваша душа? Намерения и запросы *</label>
+                    <textarea id="networking_request" name="networking_request" required 
+                        placeholder="Поделитесь своими намерениями: духовный рост, встреча с учителями, исцеление, творческое вдохновение, создание проектов, поиск единомышленников по пути саморазвития, изучение древних практик, связь с природой Алтая..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🌟 Присоединиться к Кругу 🌟
+                </button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Настраиваем энергетические каналы связи...</p>
+                </div>
+                
+                <div class="error" id="error"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            
+            // Показать загрузку
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            errorDiv.textContent = '';
+            
+            // Собрать данные формы
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                // ЗАМЕНИТЕ этот URL на ваш реальный webhook URL из n8n
+                const response = await fetch('https://your-n8n-instance.com/webhook/register-networking', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Перенаправить на страницу оплаты
+                    alert(`Благословение принято! ${result.participant_type === 'existing' ? 'Рады видеть вашу душу снова на нашем пути!' : 'Добро пожаловать в наш священный круг!'}\n\nЭнергетический обмен: ${result.price} рублей\n\nПусть этот шаг приведет вас к новым открытиям! 🌟`);
+                    window.location.href = result.payment_url;
+                } else {
+                    throw new Error(result.message || 'Произошла ошибка при соединении с энергиями');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                errorDiv.textContent = 'Произошло нарушение энергетического потока. Попробуйте восстановить связь еще раз через момент.';
+                
+                // Скрыть загрузку и включить кнопку
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Автоматическое форматирование номера телефона
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('8')) {
+                value = '7' + value.substring(1);
+            }
+            if (value.startsWith('7')) {
+                value = value.substring(0, 11);
+                const formatted = value.replace(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/, '+7 ($1) $2-$3-$4');
+                if (formatted !== value) {
+                    e.target.value = formatted;
+                } else {
+                    e.target.value = '+7 ' + value.substring(1);
+                }
+            }
+        });
+        
+        // Автоматическое добавление @ для Telegram
+        document.getElementById('telegram').addEventListener('input', function(e) {
+            let value = e.target.value;
+            if (value && !value.startsWith('@')) {
+                e.target.value = '@' + value;
+            }
+        });
+    </script>
+</body>
+</html>
